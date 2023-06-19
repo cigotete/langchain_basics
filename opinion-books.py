@@ -6,6 +6,8 @@ from typing import List
 
 from third_parts.gutendex import scrape_gutendex
 
+from output_parsers import suitability_parser
+
 def opinion_books(page=1, limit=2, topics:List[str]=[]) -> str :
         # Scrape books from gutendex
     gutendex_data = scrape_gutendex(page, limit)
@@ -13,12 +15,16 @@ def opinion_books(page=1, limit=2, topics:List[str]=[]) -> str :
     summary_template = """
         given the {books_information} about each book, I want to know:
         1. what is the book title?
-        2. According subjects, the book is suitable for a person who loves {suitable_topics} issues?
+        2. According {suitable_topics} subjects, the book is suitable for a person who loves {suitable_topics} topics?
         Please organize your answer per book.
+        \n{format_instructions}
     """
 
     summary_prompt_template = PromptTemplate(
-        input_variables=['books_information', 'suitable_topics'],template=summary_template
+        input_variables=['books_information', 'suitable_topics'],template=summary_template,
+        partial_variables={
+            "format_instructions": suitability_parser.get_format_instructions()
+        },
     )
 
     openai_api_key = config("OPENAI_API_KEY")
@@ -27,9 +33,8 @@ def opinion_books(page=1, limit=2, topics:List[str]=[]) -> str :
     chain = LLMChain(llm=llm, prompt=summary_prompt_template)
 
     result = chain.run(books_information=gutendex_data, suitable_topics=topics)
-    print(result)
     return result
 
 if __name__ == '__main__':
-    print("Starting...")
-    result = opinion_books(3, 2, ["psychology", "no fiction"])
+    result = opinion_books(1, 2, ["psychology", "fiction"])
+    print(result)

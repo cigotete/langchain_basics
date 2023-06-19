@@ -2,25 +2,23 @@ from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from decouple import config
+from typing import List
 
 from third_parts.gutendex import scrape_gutendex
 
-if __name__ == '__main__':
-    print("Starting...")
-
-    # Scrape books from gutendex
-    gutendex_data = scrape_gutendex(page=1, limit=2)
+def opinion_books(page=1, limit=2, topics:List[str]=[]) -> str :
+        # Scrape books from gutendex
+    gutendex_data = scrape_gutendex(page, limit)
 
     summary_template = """
-        given the {books_information} about books, I want to create:
-        1. what do you think about the book
-        2. Kind of person who would like the book
-        3. Kind of moment to read the book
-        4. Some creative words to start a conversation talking about the book
+        given the {books_information} about each book, I want to know:
+        1. what is the book title?
+        2. According subjects, the book is suitable for a person who loves {suitable_topics} issues?
+        Please organize your answer per book.
     """
 
     summary_prompt_template = PromptTemplate(
-        input_variables=['books_information'],template=summary_template
+        input_variables=['books_information', 'suitable_topics'],template=summary_template
     )
 
     openai_api_key = config("OPENAI_API_KEY")
@@ -28,4 +26,10 @@ if __name__ == '__main__':
 
     chain = LLMChain(llm=llm, prompt=summary_prompt_template)
 
-    print(chain.run(books_information=gutendex_data))
+    result = chain.run(books_information=gutendex_data, suitable_topics=topics)
+    print(result)
+    return result
+
+if __name__ == '__main__':
+    print("Starting...")
+    result = opinion_books(3, 2, ["psychology", "no fiction"])

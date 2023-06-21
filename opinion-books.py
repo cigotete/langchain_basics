@@ -1,3 +1,4 @@
+import json
 from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
@@ -33,7 +34,9 @@ def opinion_books(page=1, limit=2, topics:List[str]=[]) -> str :
     chain = LLMChain(llm=llm, prompt=summary_prompt_template)
 
     result = chain.run(books_information=gutendex_data, suitable_topics=topics)
-    return result
+    json_data = f"[{result}]"
+    parsed_data = json.loads(json_data)
+    return parsed_data
 
 if __name__ == '__main__':
     result = opinion_books(1, 2, ["psychology", "fiction"])

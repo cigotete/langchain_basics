@@ -4,9 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-langchain = "==0.0.205"
+langchain = "==0.0.208"
 python-decouple = "==3.8"
 openai = "==0.27.8"
+flask = "2.3.2"
 
 [dev-packages]
 

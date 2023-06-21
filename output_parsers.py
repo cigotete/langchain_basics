@@ -7,13 +7,6 @@ class BookIntel(BaseModel):
     title: str = Field(description="Title of the book")
     suitable_topics: bool = Field(description="Boolean Suitability of the book")
     suitable_topics_details: str = Field(description="Why is suitability? details of why the book is suitable or not suitable for someone")
-
-    def to_dict(self):
-        return {
-            "title_book": self.title,
-            "suitable_topics": self.suitability,
-            "suitable_topics_details": self.suitability_details
-            }
     
 
 suitability_parser = PydanticOutputParser(
